@@ -1,110 +1,80 @@
-# Gemmy — floating toy overlay (standalone)
+# Gemmy — floating mascot for Android
 
-The little purple buddy from **AntiGem** (its name in the repo is **Gemmy**, from
-`app/src/main/java/ai/antigem/ui/components/FloatingMascot.kt`) — pulled out of the big
-coding app into a tiny standalone app that does one thing:
+<p align="center">
+  <strong>A tiny purple companion that stays above your apps.</strong><br/>
+  Lightweight • Offline-first • Open source
+</p>
 
-> Gemmy floats over the **home screen and every other app**, all the time.
+[![Android](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
+[![APK](https://img.shields.io/badge/Download-APK-7C3AED)](Gemmy-overlay.apk)
 
-No terminal, no code editor, no AI agent. Just the toy.
+Gemmy is a standalone floating toy overlay. It is designed to sit above the home screen and other apps, with playful idle animations and simple touch interactions.
 
-**Repo:** `https://github.com/Sameer336s/gemmy` · **CI:** GitHub Actions builds a release APK
-on every push and tag · privacy policy at `https://sameer336s.github.io/gemmy/privacy.html`
+> **Repository status:** The current repository contains the prebuilt `Gemmy-overlay.apk` and project documentation. The Android source tree and Gradle wrapper configuration described below are not currently present on `main`. See [the production hardening plan](GEMMY-PRO-ROADMAP.md). A reproducible source build is not verified yet.
 
+## Download
 
-## What is inside
+- **Existing APK:** [Gemmy-overlay.apk](Gemmy-overlay.apk)
+- **Install:** Download the APK on your Android device, allow installation from this source, open Gemmy, grant “Display over other apps”, then tap Start floating.
+- **Important:** The APK is an existing repository binary. Verify its package details, signature and SHA-256 before treating it as a production release.
 
-| Piece | File |
-|---|---|
-| The toy, drawn with plain Canvas (no images, no libraries) | `app/src/main/java/com/gemmy/overlay/GemmyView.java` |
-| System-wide overlay window + foreground service | `app/src/main/java/com/gemmy/overlay/GemmyService.java` |
-| One setup screen (permission, size, start/stop) | `app/src/main/java/com/gemmy/overlay/MainActivity.java` |
-| Auto-start after reboot | `app/src/main/java/com/gemmy/overlay/BootReceiver.java` |
-| Settings storage | `app/src/main/java/com/gemmy/overlay/Prefs.java` |
-| Launcher icon renderer (PIL) | `tools/make_icon.py` |
-| Gradle-free build (aapt2 → javac → d8 → zipalign → apksigner) | `tools/build.sh` |
-| F-Droid store listing (descriptions, changelog, icon) | `fastlane/metadata/android/en-US/` |
-| F-Droid build metadata for the fdroiddata MR | `fdroid/com.gemmy.overlay.yml` |
+## Features documented for the current app
 
-It is **zero-dependency**: no AndroidX, no Kotlin, no Compose, no third-party libraries at all.
-The APK is ~80 KB.
+- Floating mascot overlay over the home screen and other apps.
+- Idle movement, blinking, breathing and playful animations.
+- Tap, double-tap, drag and long-press interactions.
+- Three mascot sizes and remembered position.
+- Foreground notification with a stop action.
+- Optional start on boot.
+- No account or analytics described by the project documentation.
 
-## How to install
+Actual behavior and Android-version compatibility should be tested on-device before release.
 
-1. Copy `gemmy.apk` to the phone and open it (allow "install from unknown sources").
-2. Open **Gemmy** → tap **"Display over other apps: Allow"** → switch it on.
-3. Come back, tap **Start floating**. Gemmy drops onto your home screen.
-4. Press the home button / open any app — Gemmy stays on top.
+## Project structure
 
-On MIUI / HyperOS, Realme, Vivo, Oppo, OnePlus and similar skins, also enable
-*"Display pop-up windows while running in background"* and set Battery usage to
-*Unrestricted*, otherwise the OEM killer stops the overlay after a while.
+The intended Android implementation is documented as Java + Canvas with no third-party UI libraries. However, these source paths are currently missing from the tracked `main` branch:
 
-## What Gemmy does
+- `app/src/main/java/com/gemmy/overlay/GemmyView.java`
+- `app/src/main/java/com/gemmy/overlay/GemmyService.java`
+- `app/src/main/java/com/gemmy/overlay/MainActivity.java`
+- `app/src/main/AndroidManifest.xml`
 
-- **Idle:** bobs, breathes, blinks, looks around, waves, hops, spins, yawns and finally falls
-  asleep after ~55 s without a touch (with a little "z").
-- **Tap:** squish + hearts + a random line in a speech bubble.
-- **Double tap:** spins around, sparkles.
-- **Drag:** pick it up anywhere; on release it is flung with momentum and bounces off the screen edges.
-  The position is remembered.
-- **Long press:** small menu — **Dance / Nap (or Wake) / Hide**.
-- **Size:** S / M / L on the setup screen, changes the live overlay too.
-- **Notification:** "Gemmy is floating" with a Close action; the toy keeps running as a
-  foreground service so Android does not kill it.
-- **Start on boot** checkbox (on by default).
+The Gradle module and wrapper files must also be restored before a reproducible build can be run. Track progress in [GEMMY-PRO-ROADMAP.md](GEMMY-PRO-ROADMAP.md).
 
-## Building
+## Build
 
-Standard Gradle project (no dependencies at all, so the build is quick):
+A source build is **not currently reproducible from this checkout**, because the Android app module and wrapper configuration are missing. Once restored, the intended command is:
 
 ```bash
-./gradlew assembleRelease
-# APK: app/build/outputs/apk/release/app-release-unsigned.apk
+./gradlew clean assembleRelease
 ```
 
-Needs JDK 17 and Android SDK 35. The Gradle wrapper (8.9) and AGP 8.7.3 are pinned in
-`gradle/wrapper/gradle-wrapper.properties` and `build.gradle.kts`.
+Expected output for a standard Android Gradle project:
 
-There is also a Gradle-free path for a quick local APK:
-
-```bash
-ANDROID_HOME=/path/to/sdk bash tools/build.sh
+```text
+app/build/outputs/apk/release/
 ```
 
-It uses aapt2, javac, d8, zipalign and apksigner directly and signs with a throwaway
-debug key created inside `tools/build/` — fine for testing, never for distribution.
+Use JDK 17 and the project-pinned Android Gradle Plugin / SDK versions. Do not ship a debug-signed artifact as a production release.
 
-## Privacy policy
+## Security and privacy
 
-`docs/privacy.html` is the policy page. Turn on GitHub Pages (Settings → Pages → Deploy from a
-branch → `main`, folder `/docs`) and it is live at
-`https://sameer336s.github.io/gemmy/privacy.html` — paste that into every store console.
+The app requires overlay access for its core feature. Review all requested permissions and Android foreground-service behavior before installing. The project documentation states that the app does not need internet access; verify the APK manifest and dependency graph before relying on that claim.
 
-## Publishing on F-Droid
+Privacy policy: [docs/privacy.html](docs/privacy.html) (the file must be present and GitHub Pages configured before using a public policy URL).
 
-See `SUBMIT-TO-FDROID.md`: push the repo, tag `v1.0`, open an RFP issue, then send a
-`New App: Gemmy` merge request to `fdroiddata` with `fdroid/com.gemmy.overlay.yml`.
+## Releases
 
-## Porting notes (Compose → Canvas)
+Release notes: [Gemmy v1.0](Gemmy-v1.0-release-notes.md)  
+Changelog: [CHANGELOG.md](CHANGELOG.md)
 
-`FloatingMascot.kt` drew the body, limbs, antenna, face and particles with Compose
-`DrawScope`. `GemmyView.java` keeps the same geometry and colours:
+For release-quality packaging, verify the application ID, version, signing certificate, requested permissions and SHA-256. See [GEMMY-PRO-ROADMAP.md](GEMMY-PRO-ROADMAP.md).
 
-- body: gumdrop path, vertical gradient `#C9BCFF → #8F7DFF → #5B57E0`, ink outline `#2E2A6B`
-- limbs `#5B52D6`, pupils `#1B1840`, cheeks `#FF8FB8`, tongue `#FF7A9A`, star `#FFD45E`
-- every shape is built once per radius (`buildArt()`), the frame loop is a single
-  `Handler` tick at ~60 fps (slower when resting, so it sips battery)
-- `DrawScope.withTransform { }` became `canvas.save()/translate/rotate/scale/restoreToCount`
-- unit-space shapes (star, heart, sparkle, "z") keep their strokes in unit space, so the
-  canvas scale scales the stroke exactly like Compose does
+## Contributing
 
-## Permissions used
+Issues and pull requests are welcome. Keep changes focused, avoid adding unnecessary permissions or dependencies, and include device/version details for Android bugs.
 
-- `SYSTEM_ALERT_WINDOW` — draw over other apps (the whole point)
-- `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_SPECIAL_USE` — keep the overlay alive
-- `POST_NOTIFICATIONS` — the "Gemmy is floating" notification
-- `RECEIVE_BOOT_COMPLETED` — optional auto-start
-- `VIBRATE` — tiny haptic on poke
+## License
 
-No internet permission, no data collection.
+GPL-3.0. See [LICENSE](LICENSE).
